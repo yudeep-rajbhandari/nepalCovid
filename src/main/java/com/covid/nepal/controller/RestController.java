@@ -9,22 +9,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @org.springframework.web.bind.annotation.RestController
-
 public class RestController {
 
     @Autowired
     private MongoDocumentObject mObject;
 
+    @Autowired
+    private NepalCrawler crawler;
+
     private static final String SUSPECTED_CASES = "SUSPECTED_CASES";
     private static final String BLACK_MARKETING = "BLACK_MARKETING";
     private static final String MISINFORMATION = "MISINFORMATION";
     private static final String STATUS = "status";
+    private static final String NEPAL_DATA = "NEPAL_DATA";
 
     @Autowired
     private Scrapper scrapper;
@@ -90,8 +98,12 @@ public class RestController {
     public String updateNepal() {
 
         JSONObject array = null;
+        String api = null;
         try {
-            array = new NepalCrawler().call();
+//            final Query idQuery = new Query();
+//            idQuery.with(Sort.by(Sort.DEFAULT_DIRECTION,"created_date"));
+//            array = mObject.findOne(idQuery,NEPAL_DATA);
+             array = crawler.getfromAPI();
             System.out.println(array);
         } catch (Exception e) {
             e.printStackTrace();

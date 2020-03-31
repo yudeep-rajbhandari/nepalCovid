@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,6 +26,9 @@ public class MongoDocumentObject {
     private static final String SUSPECTED_CASES = "SUSPECTED_CASES";
     private static final String BLACK_MARKETING = "BLACK_MARKETING";
     private static final String MISINFORMATION = "MISINFORMATION";
+    private static final String NEPAL_DATA = "NEPAL_DATA";
+    private static final String SAARC_DATA = "SAARC_DATA";
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDocumentObject.class);
     @Autowired
@@ -43,6 +47,14 @@ public class MongoDocumentObject {
         if(!checkCollection(MISINFORMATION)){
             createCollection(MISINFORMATION);
             LOGGER.info("Creating the collection {}",MISINFORMATION);
+        }
+        if(!checkCollection(NEPAL_DATA)){
+            createCollection(NEPAL_DATA);
+            LOGGER.info("Creating the collection {}",NEPAL_DATA);
+        }
+        if(!checkCollection(SAARC_DATA)){
+            createCollection(SAARC_DATA);
+            LOGGER.info("Creating the collection {}",SAARC_DATA);
         }
     }
 
@@ -184,6 +196,34 @@ public class MongoDocumentObject {
                     collectionName);
             LOGGER.error("Exception occured in createCollection", exception);
         }
+    }
+
+    public void deleteMongoCollectionData(final String collectionName) {
+        LOGGER.debug("Remove data from collection -> {}", collectionName);
+        try {
+            mongoTemplate.getCollection(collectionName).deleteMany(new Document());
+
+        } catch (Exception exception) {
+            LOGGER.debug("Unable to delete data in mongo for collection -> {}",
+                    collectionName);
+            LOGGER.error("Exception occured in deleteMongoCollectionData", exception);
+        }
+    }
+
+    public JSONObject findOne(final Query filter, final String collectionName) {
+        //LOGGER.debug("Find objects for filter:{}, pageNumber: {}, pageSize:{} in collection: {}", filter, collectionName);
+        JSONObject result = null;
+
+        final Document document = mongoTemplate.findOne(filter, Document.class, collectionName);
+        final Optional<Document> documentOpt = Optional.ofNullable(document);
+
+        if (documentOpt.isPresent()) {
+            //LOGGER.debug("Found Object one");
+            result = new JSONObject(document.toJson());
+        } else {
+            LOGGER.debug("No Objects found for filter:{}, pageNumber: {}, pageSize:{} in collection: {}", filter, collectionName);
+        }
+        return result;
     }
 
 }

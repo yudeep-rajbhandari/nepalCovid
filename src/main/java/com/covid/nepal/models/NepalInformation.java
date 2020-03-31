@@ -7,9 +7,7 @@ public class NepalInformation {
 
     private Integer Recovered;
     private Integer Negative;
-    private Integer Positive;
 
-    @JsonProperty("Recovered")
     public Integer getRecovered() {
         return Recovered;
     }
@@ -17,7 +15,7 @@ public class NepalInformation {
     public void setRecovered(Integer recovered) {
         Recovered = recovered;
     }
-    @JsonProperty("Negative")
+
     public Integer getNegative() {
         return Negative;
     }
@@ -25,7 +23,7 @@ public class NepalInformation {
     public void setNegative(Integer negative) {
         Negative = negative;
     }
-    @JsonProperty("Positive")
+
     public Integer getPositive() {
         return Positive;
     }
@@ -34,7 +32,6 @@ public class NepalInformation {
         Positive = positive;
     }
 
-    @JsonProperty("Isolation")
     public Integer getIsolation() {
         return Isolation;
     }
@@ -42,15 +39,16 @@ public class NepalInformation {
     public void setIsolation(Integer isolation) {
         Isolation = isolation;
     }
-    @JsonProperty("Total Samples Tested")
-    public Integer getTotal() {
-        return Total;
+
+    public Integer getTotal_Samples_Tested() {
+        return Total_Samples_Tested;
     }
 
-    public void setTotal(Integer total) {
-        Total = total;
+    public void setTotal_Samples_Tested(Integer total_Samples_Tested) {
+        Total_Samples_Tested = total_Samples_Tested;
     }
 
+    private Integer Positive;
     private Integer Isolation;
-    private Integer Total;
+    private Integer Total_Samples_Tested;
 }

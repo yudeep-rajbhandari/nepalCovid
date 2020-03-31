@@ -1,13 +1,25 @@
 package com.covid.nepal.scrap;
 
 
+import com.covid.nepal.config.MongoDocumentObject;
+import com.covid.nepal.models.CountryData;
+import com.covid.nepal.models.NepalInformation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import javax.net.ssl.SSLException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,10 +30,20 @@ import java.util.stream.Collectors;
 import static org.springframework.http.HttpHeaders.USER_AGENT;
 
 @Component
+@EnableScheduling
+@EnableAsync
 public class Scrapper {
     Document doc;
     List header;
     List<Elements> list;
+    private static final String SAARC_DATA = "SAARC_DATA";
+
+
+    @Autowired
+    private WebClientConfig clientConfig;
+
+    @Autowired
+    private MongoDocumentObject mObject;
 
 
     public JSONArray getdocument() {
@@ -119,6 +141,54 @@ public class Scrapper {
 
         return array;
     }
+    private  JSONObject prepareJSONSAARCdata(WebClient client,String country) throws SSLException, JsonProcessingException {
+
+        JSONArray array = new JSONArray();
+
+            WebClient.RequestBodySpec uri1 = client
+                    .method(HttpMethod.GET)
+                    .uri("/"+country);
+            String response2 = uri1.exchange()
+                    .block()
+                    .bodyToMono(String.class)
+                    .block();
+            JSONObject object = new JSONObject(response2);
+            CountryData countryData = new CountryData();
+            countryData.setActive_Cases(object.getInt("active"));
+            countryData.setCountry(object.getString("country"));
+            try{
+                countryData.setDIn1M(object.getDouble("deathsPerOneMillion"));
+            }
+            catch (Exception e){
+                countryData.setDIn1M(null);
+            }
+            countryData.setTotal_Deaths(object.getInt("deaths"));
+        countryData.setTotIn1M(object.getDouble("casesPerOneMillion"));
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(countryData);
+        return new JSONObject(json);
+    }
+
+    public JSONArray getSAARCJSONObjectAPI() throws SSLException, JsonProcessingException {
+        JSONArray array = new JSONArray();
+        List<String> saarcCountry = Arrays.asList("India","Nepal","Pakistan","Bangladesh","Sri Lanka","Bhutan");
+        WebClient client = clientConfig.WorldWebclient();
+        for(String country:saarcCountry){
+            array.put(prepareJSONSAARCdata(client,country));
+        }
+        return array;
+    }
+    @Scheduled(cron =  "0 17 13 ? * MON,TUE,WED,THU,FRI*",zone = "UTC")
+    private JSONArray getSAARCJSONObjectAPICron() throws Exception {
+        JSONArray array = new JSONArray();
+        List<String> saarcCountry = Arrays.asList("India","Nepal","Pakistan","Bangladesh","Sri Lanka","Bhutan");
+        WebClient client = clientConfig.WorldWebclient();
+        for(String country:saarcCountry){
+            mObject.saveMongoDocument(prepareJSONSAARCdata(client,country),SAARC_DATA);
+        }
+        return array;
+    }
+
 
 
     public JSONObject getTotalcases() {
