@@ -28,6 +28,8 @@ public class MongoDocumentObject {
     private static final String MISINFORMATION = "MISINFORMATION";
     private static final String NEPAL_DATA = "NEPAL_DATA";
     private static final String SAARC_DATA = "SAARC_DATA";
+    private static final String CORONA_FEAR = "CORONA_FEAR";
+
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoDocumentObject.class);
@@ -55,6 +57,10 @@ public class MongoDocumentObject {
         if(!checkCollection(SAARC_DATA)){
             createCollection(SAARC_DATA);
             LOGGER.info("Creating the collection {}",SAARC_DATA);
+        }
+        if(!checkCollection(CORONA_FEAR)){
+            createCollection(CORONA_FEAR);
+            LOGGER.info("Creating the collection {}",CORONA_FEAR);
         }
     }
 

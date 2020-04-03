@@ -3,6 +3,7 @@ package com.covid.nepal.controller;
 
 import com.covid.nepal.config.MongoDocumentObject;
 import com.covid.nepal.models.*;
+import com.covid.nepal.scrap.CoronaFearController;
 import com.covid.nepal.scrap.NepalCrawler;
 import com.covid.nepal.scrap.Scrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,9 @@ public class RestController {
 
     @Autowired
     private NepalCrawler crawler;
+
+    @Autowired
+    private CoronaFearController coronaFearController;
 
     private static final String SUSPECTED_CASES = "SUSPECTED_CASES";
     private static final String BLACK_MARKETING = "BLACK_MARKETING";
@@ -56,6 +60,20 @@ public class RestController {
     public String updatebyCountry(@PathVariable("country") final String country) {
 
         JSONObject array = scrapper.getdocumentbyCountry(country);
+        if(array != null){
+            return  array.toString();
+        }
+        else{
+            return new JSONArray().toString();
+        }
+    }
+
+    @RequestMapping(value = "/coronaFear", method = RequestMethod.GET)
+    @ResponseBody
+    @CrossOrigin()
+    public String getCoronaFear() {
+
+        JSONArray array = coronaFearController.getCoronaFear();
         if(array != null){
             return  array.toString();
         }
@@ -190,6 +208,19 @@ public class RestController {
 
     }
 
+
+    @RequestMapping(value = "/coronaFear", method = RequestMethod.POST)
+    @ResponseBody
+    @CrossOrigin
+    public CovidResponseBody saveCoronaFear(@RequestBody final CoronaFear obj) {
+        try {
+            String documentId = coronaFearController.saveCoronaFear(obj);
+            return setSuccessResponse(documentId,obj);
+        } catch (Exception e) {
+            return setFailureResponse("Could not process",null);
+        }
+
+    }
     @RequestMapping(value = "/blackmarketing", method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_UTF8_VALUE,produces = { MediaType.APPLICATION_JSON_UTF8_VALUE })
     @ResponseBody
     @CrossOrigin

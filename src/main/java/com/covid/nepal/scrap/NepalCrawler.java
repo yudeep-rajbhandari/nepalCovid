@@ -21,6 +21,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.net.ssl.SSLException;
 import java.util.ArrayList;
@@ -70,11 +72,12 @@ public class NepalCrawler {
         return new JSONObject(json);
     }
 
+
     public JSONObject getfromAPI() throws SSLException, JsonProcessingException {
 
         return  prepareJSONNepaldata();
     }
-    @Scheduled(fixedRate = 21600000)
+//    @Scheduled(fixedRate = 21600000)
     public void storefromAPI() throws Exception {
      JSONObject object = prepareJSONNepaldata();
         String documentId = mObject.saveMongoDocument(object,NEPAL_DATA);
@@ -89,7 +92,7 @@ public class NepalCrawler {
         while (doc1 == null) {
             try {
                 ii++;
-                doc1 = SSLHelper.getConnection("https://heoc.mohp.gov.np/").timeout(0).userAgent(USER_AGENT).get();
+//                doc1 = SSLHelper.getConnection("https://heoc.mohp.gov.np/").timeout(0).userAgent(USER_AGENT).get();
             } catch (Exception e) {
                 e.printStackTrace();
             }
