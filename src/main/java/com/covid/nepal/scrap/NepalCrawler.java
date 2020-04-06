@@ -77,7 +77,7 @@ public class NepalCrawler {
 
         return  prepareJSONNepaldata();
     }
-//    @Scheduled(fixedRate = 21600000)
+    @Scheduled(fixedRate = 21600000)
     public void storefromAPI() throws Exception {
      JSONObject object = prepareJSONNepaldata();
         String documentId = mObject.saveMongoDocument(object,NEPAL_DATA);
