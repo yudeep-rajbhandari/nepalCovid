@@ -50,11 +50,11 @@ public class WebClientConfig{
         WebClient client2 = WebClient.builder().clientConnector(getConnector()).baseUrl(WorldUrl).build();
         return client2;
     }
-    public CloseableHttpClient getHttpClient(){
-        final CloseableHttpClient httpclient = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
-        return httpclient;
-    }
+//    public CloseableHttpClient getHttpClient(){
+//        final CloseableHttpClient httpclient = HttpClients.custom()
+//                .setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
+//                .build();
+//        return httpclient;
+//    }
 
 }
