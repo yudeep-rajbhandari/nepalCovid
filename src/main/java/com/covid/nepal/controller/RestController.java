@@ -192,6 +192,19 @@ public class RestController {
         }
     }
 
+    @RequestMapping(value = "/provinceData", method = RequestMethod.GET)
+    @ResponseBody
+    @CrossOrigin
+    public String getProvinceData() {
+        try {
+            System.out.println(crawler.getJSONDataforProvince().toString());
+            return crawler.getJSONDataforProvince().toString();
+
+        } catch (Exception e) {
+            return new JSONArray().toString();
+        }
+    }
+
     @RequestMapping(value = "/misinformation", method = RequestMethod.POST)
     @ResponseBody
     @CrossOrigin

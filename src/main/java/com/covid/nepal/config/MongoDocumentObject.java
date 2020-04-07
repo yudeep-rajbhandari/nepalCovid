@@ -29,6 +29,9 @@ public class MongoDocumentObject {
     private static final String NEPAL_DATA = "NEPAL_DATA";
     private static final String SAARC_DATA = "SAARC_DATA";
     private static final String CORONA_FEAR = "CORONA_FEAR";
+    private static final String PROVINCE_WISE_STATS = "PROVINCE_WISE_STATS";
+    private static final String PROVINCE_WISE_STATS_CRON = "PROVINCE_WISE_STATS_CRON";
+
 
 
 
@@ -61,6 +64,14 @@ public class MongoDocumentObject {
         if(!checkCollection(CORONA_FEAR)){
             createCollection(CORONA_FEAR);
             LOGGER.info("Creating the collection {}",CORONA_FEAR);
+        }
+        if(!checkCollection(PROVINCE_WISE_STATS)){
+            createCollection(PROVINCE_WISE_STATS);
+            LOGGER.info("Creating the collection {}",PROVINCE_WISE_STATS);
+        }
+        if(!checkCollection(PROVINCE_WISE_STATS_CRON)){
+            createCollection(PROVINCE_WISE_STATS_CRON);
+            LOGGER.info("Creating the collection {}",PROVINCE_WISE_STATS_CRON);
         }
     }
 

@@ -3,9 +3,12 @@ package com.covid.nepal.scrap;
 
 import com.covid.nepal.config.MongoDocumentObject;
 import com.covid.nepal.models.NepalInformation;
+import com.covid.nepal.models.ProvinceModelData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.util.JSON;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,6 +48,10 @@ public class NepalCrawler {
     private WebClientConfig clientConfig;
     Document doc;
     private static final String NEPAL_DATA = "NEPAL_DATA";
+    private static final String PROVINCE_WISE_STATS = "PROVINCE_WISE_STATS";
+    private static final String PROVINCE_WISE_STATS_CRON = "PROVINCE_WISE_STATS_CRON";
+
+
 
     Document doc1 = null;
     private static final Logger LOGGER = LoggerFactory.getLogger(NepalCrawler.class);
@@ -129,4 +136,59 @@ nepalInformation.setPositive(object.getInt("Positive"));
         String documentId = mObject.saveMongoDocument(new JSONObject(json),NEPAL_DATA);
         return object;
     }
-}
+
+    public JSONArray getJSONDataforProvince(){
+        JSONArray array = mObject.find(PROVINCE_WISE_STATS);
+        return array;
+    }
+
+    @Scheduled(fixedRate = 4000)
+    private void getJSONDataForProvince() throws Exception {
+        WebClient client = clientConfig.NepalWebclient();
+        WebClient.RequestBodySpec uri1 = client
+                .method(HttpMethod.GET)
+                .uri("/province-data/?format=json");
+        String response2 = uri1.exchange()
+                .block()
+                .bodyToMono(String.class)
+                .block();
+        JSONArray array = new JSONArray(response2);
+        mObject.deleteMongoCollectionData(PROVINCE_WISE_STATS);
+        for(Object object:array){
+            ProvinceModelData modelData =  new ProvinceModelData();
+            JSONObject obj = (JSONObject)object;
+            modelData.setProvince_name(obj.getString("province_name"));
+            modelData.setFacility_count(obj.getInt("facility_count"));
+            modelData.setNum_of_isolation_bed(obj.getInt("num_of_isolation_bed"));
+            modelData.setOccupied_isolation_bed(obj.getInt("occupied_isolation_bed"));
+            modelData.setTotal_death(obj.getInt("total_death"));
+            modelData.setTotal_negative(obj.getInt("total_negative"));
+            modelData.setTotal_in_isolation(obj.getInt("total_in_isolation"));
+            modelData.setTotal_positive(obj.getInt("total_positive"));
+            modelData.setTotal_recovered(obj.getInt("total_recovered"));
+            modelData.setUpdate_date(obj.getString("update_date"));
+            modelData.setTotal_tested(obj.getInt("total_tested"));
+            modelData.setProvince_id(obj.getInt("province_id"));
+            ObjectMapper mapper = new ObjectMapper();
+            String json = mapper.writeValueAsString(modelData);
+            String documentId = mObject.saveMongoDocument(new JSONObject(json),PROVINCE_WISE_STATS);
+            LOGGER.debug("Data stored for province wise data for province {} with documentId {}",obj.getString("province_name"),documentId);
+        }
+    }
+    @Scheduled(cron =  "0 58 23 * * *",zone = "UTC")
+    private void getJSONDataForProvinceCron() throws Exception {
+        WebClient client = clientConfig.NepalWebclient();
+        WebClient.RequestBodySpec uri1 = client
+                .method(HttpMethod.GET)
+                .uri("/province-data/?format=json");
+        String response2 = uri1.exchange()
+                .block()
+                .bodyToMono(String.class)
+                .block();
+        JSONArray array = new JSONArray(response2);
+        for(Object object:array) {
+            String documentId = mObject.saveMongoDocument(new JSONObject(object),PROVINCE_WISE_STATS_CRON);
+        }
+        }
+
+    }
