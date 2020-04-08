@@ -142,7 +142,7 @@ nepalInformation.setPositive(object.getInt("Positive"));
         return array;
     }
 
-    @Scheduled(fixedRate = 4000)
+    @Scheduled(fixedRate = 21600000)
     private void getJSONDataForProvince() throws Exception {
         WebClient client = clientConfig.NepalWebclient();
         WebClient.RequestBodySpec uri1 = client
