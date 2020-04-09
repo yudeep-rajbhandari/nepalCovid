@@ -18,14 +18,15 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Value("${spring.data.mongodb.database:Covid}")
     private String dbName;
-    @Value("${spring.data.mongodb.connString:mongodb+srv://yudeep:yudeep@yudeep-v9isw.mongodb.net/test?retryWrites=true&w=majority}")
+    @Value("${spring.data.mongodb.connString}")
     private String connectionString;
     ConnectionString connString = new ConnectionString("mongodb+srv://yudeep:yudeep1234@cluster0-ecdnb.mongodb.net/test?retryWrites=true&w=majority");
     @Override
     public MongoClient mongoClient() {
+        System.out.println(connectionString);
 
         MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connString)
+                .applyConnectionString(new ConnectionString(connectionString))
                 .retryWrites(true)
                 .applyToSslSettings(builder -> builder.enabled(true))
                 .applyToConnectionPoolSettings(builder ->
