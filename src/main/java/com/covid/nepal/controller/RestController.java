@@ -4,6 +4,7 @@ package com.covid.nepal.controller;
 import com.covid.nepal.config.MongoDocumentObject;
 import com.covid.nepal.models.*;
 import com.covid.nepal.scrap.CoronaFearController;
+import com.covid.nepal.scrap.EssentialsController;
 import com.covid.nepal.scrap.NepalCrawler;
 import com.covid.nepal.scrap.Scrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @org.springframework.web.bind.annotation.RestController
 public class RestController {
@@ -40,6 +44,9 @@ public class RestController {
 
     @Autowired
     private Scrapper scrapper;
+
+    @Autowired
+    private EssentialsController essentialsController;
 
     @RequestMapping(value = "/allUpdate", method = RequestMethod.GET)
     @ResponseBody
@@ -121,7 +128,7 @@ public class RestController {
 //            final Query idQuery = new Query();
 //            idQuery.with(Sort.by(Sort.DEFAULT_DIRECTION,"created_date"));
 //            array = mObject.findOne(idQuery,NEPAL_DATA);
-             array = crawler.getfromAPI();
+            // array = crawler.getfromAPI();
             System.out.println(array);
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,4 +290,14 @@ public class RestController {
     }
 
 
+    @RequestMapping(value = "/getBulkEssential", method = RequestMethod.GET)
+    @ResponseBody
+    @CrossOrigin
+    public String getBulkEssential() {
+        try {
+          return essentialsController.getEssentials().toString();
+        } catch (Exception e) {
+            return new JSONArray().toString();
+        }
+    }
 }
