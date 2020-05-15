@@ -123,10 +123,11 @@ public class Scrapper {
             JSONObject obj = new JSONObject();
             if (list != null) {
 
-                List<Elements> dataCountry = list.stream().filter(i -> i.size() != 0).filter(i -> i.select("td").get(0).text().replaceAll(" ", "_").equalsIgnoreCase(country)).collect(Collectors.toList());
+                List<Elements> dataCountry = list.stream().filter(i -> i.size() != 0).filter(i -> i.select("td").get(1).text().replaceAll(" ", "_").equalsIgnoreCase(country)).collect(Collectors.toList());
                 for (Elements li : dataCountry) {
                     int i = 0;
                     for (Element l : li) {
+                        obj.put(header.get(i).toString().equalsIgnoreCase("Tests/_1M_pop")?"TestIn1M":header.get(i).toString(), l.text());
                         obj.put(header.get(i).toString().equalsIgnoreCase("Country,_Other")?"country":header.get(i).toString(), l.text());
                         obj.put(header.get(i).toString().equalsIgnoreCase("Tot_Cases/_1M_pop")?"TotIn1M":header.get(i).toString(), l.text());
                         obj.put(header.get(i).toString().equalsIgnoreCase("Deaths/_1M_pop")?"DIn1M":header.get(i).toString(), l.text());

@@ -48,6 +48,7 @@ public class NepalCrawler {
     private WebClientConfig clientConfig;
     Document doc;
     private static final String NEPAL_DATA = "NEPAL_DATA";
+    private static final String NEPAL_DATA_API = "NEPAL_DATA_API";
     private static final String PROVINCE_WISE_STATS = "PROVINCE_WISE_STATS";
     private static final String PROVINCE_WISE_STATS_CRON = "PROVINCE_WISE_STATS_CRON";
 
@@ -142,13 +143,14 @@ nepalInformation.setPositive(object.getInt("Positive"));
         return array;
     }
 
-    @Scheduled(fixedRate = 21600000)
+    @Scheduled(fixedRate = 7200000)
     private void getJSONDataForProvince() throws Exception {
         WebClient client = clientConfig.NepalWebclient();
         WebClient.RequestBodySpec uri1 = client
                 .method(HttpMethod.GET)
-                .uri("/province-data/?format=json");
+                .uri("/stats/?format=json&id=&province=all");
         String response2 = uri1.exchange()
+
                 .block()
                 .bodyToMono(String.class)
                 .block();
@@ -180,7 +182,7 @@ nepalInformation.setPositive(object.getInt("Positive"));
         WebClient client = clientConfig.NepalWebclient();
         WebClient.RequestBodySpec uri1 = client
                 .method(HttpMethod.GET)
-                .uri("/province-data/?format=json");
+                .uri("/stats/?format=json&id=&province=all");
         String response2 = uri1.exchange()
                 .block()
                 .bodyToMono(String.class)
