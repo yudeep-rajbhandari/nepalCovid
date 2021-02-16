@@ -28,10 +28,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.net.ssl.SSLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.IntStream;
 
@@ -145,10 +143,10 @@ nepalInformation.setPositive(object.getInt("Positive"));
 
     @Scheduled(fixedRate = 7200000)
     private void getJSONDataForProvince() throws Exception {
-        WebClient client = clientConfig.NepalWebclient();
+        LocalDate myObj = LocalDate.now();
+        WebClient client = clientConfig.NepalWebclient1();
         WebClient.RequestBodySpec uri1 = client
-                .method(HttpMethod.GET)
-                .uri("/stats/?format=json&id=&province=all");
+                .method(HttpMethod.GET);
         String response2 = uri1.exchange()
 
                 .block()
@@ -156,26 +154,37 @@ nepalInformation.setPositive(object.getInt("Positive"));
                 .block();
         JSONArray array = new JSONArray(response2);
         mObject.deleteMongoCollectionData(PROVINCE_WISE_STATS);
-        for(Object object:array){
-            ProvinceModelData modelData =  new ProvinceModelData();
-            JSONObject obj = (JSONObject)object;
-            modelData.setProvince_name(obj.getString("province_name"));
-            modelData.setFacility_count(obj.getInt("facility_count"));
-            modelData.setNum_of_isolation_bed(obj.getInt("num_of_isolation_bed"));
-            modelData.setOccupied_isolation_bed(obj.getInt("occupied_isolation_bed"));
-            modelData.setTotal_death(obj.getInt("total_death"));
-            modelData.setTotal_negative(obj.getInt("total_negative"));
-            modelData.setTotal_in_isolation(obj.getInt("total_in_isolation"));
-            modelData.setTotal_positive(obj.getInt("total_positive"));
-            modelData.setTotal_recovered(obj.getInt("total_recovered"));
-            modelData.setUpdate_date(obj.getString("update_date"));
-            modelData.setTotal_tested(obj.getInt("total_tested"));
-            modelData.setProvince_id(obj.getInt("province_id"));
-            ObjectMapper mapper = new ObjectMapper();
-            String json = mapper.writeValueAsString(modelData);
-            String documentId = mObject.saveMongoDocument(new JSONObject(json),PROVINCE_WISE_STATS);
-            LOGGER.debug("Data stored for province wise data for province {} with documentId {}",obj.getString("province_name"),documentId);
+        Map<String,Integer>  province= new HashMap<>();
+
+        for (Object obj:array){
+            JSONObject obj1 = (JSONObject)obj;
+    if(province.containsKey(obj1.getString("Province"))){
+        province.replace(obj1.getString("Province"),Integer.valueOf(obj1.getInt("Value"))+province.get(obj1.getString("Province")));
+    }
+    else{
+        province.put(obj1.getString("Province"),Integer.valueOf(obj1.getInt("Value")));
+    }
+
         }
+province.forEach((k,v)->{
+    ProvinceModelData modelData =  new ProvinceModelData();
+    modelData.setProvince_name(k);
+    modelData.setTotal_positive(v);
+    ObjectMapper mapper = new ObjectMapper();
+    String json = null;
+    try {
+        json = mapper.writeValueAsString(modelData);
+        String documentId = mObject.saveMongoDocument(new JSONObject(json),PROVINCE_WISE_STATS);
+
+    } catch (JsonProcessingException e) {
+        e.printStackTrace();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    LOGGER.info("Data stored for province wise data for province {} with documentId {}",k);
+
+});
+
     }
     @Scheduled(cron =  "0 58 23 * * *",zone = "UTC")
     private void getJSONDataForProvinceCron() throws Exception {
