@@ -154,6 +154,15 @@ nepalInformation.setPositive(object.getInt("Positive"));
                 .block();
         JSONArray array = new JSONArray(response2);
         mObject.deleteMongoCollectionData(PROVINCE_WISE_STATS);
+        Map<String,Integer> provinceMap = new HashMap<>();
+        provinceMap.put("Province 1",1);
+        provinceMap.put("Province 2",2);
+        provinceMap.put("Bagmati",3);
+        provinceMap.put("Gandaki",4);
+        provinceMap.put("Lumbini",5);
+        provinceMap.put("Karnali",6);
+        provinceMap.put("Sudurpaschim",7);
+
         Map<String,Integer>  province= new HashMap<>();
 
         for (Object obj:array){
@@ -170,6 +179,7 @@ province.forEach((k,v)->{
     ProvinceModelData modelData =  new ProvinceModelData();
     modelData.setProvince_name(k);
     modelData.setTotal_positive(v);
+    modelData.setProvince_id(provinceMap.get(k));
     ObjectMapper mapper = new ObjectMapper();
     String json = null;
     try {
