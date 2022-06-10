@@ -30,7 +30,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
                 .applyToSslSettings(builder -> builder.enabled(true))
                 .applyToConnectionPoolSettings(builder ->
                         builder.maxConnectionIdleTime(5000, TimeUnit.MILLISECONDS))
-                .applicationName("Covid")
+                .applicationName("Covid-Prod")
                 .build();
         MongoClient mongoClient = MongoClients.create(settings);
         return  mongoClient;
